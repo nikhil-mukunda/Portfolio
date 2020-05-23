@@ -1,0 +1,336 @@
+openapi: "3.0.0"
+info:
+  title: "Task Creation APIs"
+  description: "Use the APIs provided by the SAP Health for Patient Engagement solution to create tasks for patients. Ensure you have read the API documentation before proceeding."
+  version: "2.5"
+ 
+servers:
+- url: "https://www.sap.com/hep/v3.0"
+
+security:
+  - bearerAuth: []   
+  
+paths:
+  /UnitOfMeasures:
+    post:
+      tags:
+      - Post Units of Measure
+      summary: "Post the units of measure for all your numeric tasks"
+      description: "You can define a specific unit of measure (UoM) and then use the UoM for various numerical tasks. This action enables you 
+      to define a UoM once and reuse it in various numerical tasks."
+      operationId: UnitsofMeasure
+
+
+      requestBody:
+  
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnitofMeasure' 
+
+      responses:
+        "200":
+          description: Successful response
+
+
+        "404":
+          description: Not found response
+          content:
+            text/plain:
+              schema:
+                title: Weather not found
+                type: string
+                example: Not found
+      
+
+  /MeasurementStagings:
+    put:
+      tags:
+      - Upload the tasks to staging area
+      summary: "Add your XML to the staging area"
+      description: "<b> Ensure you have created the XML for tasks before proceeding. </b> If you have multiple XMLs, you can stage all of them and activate each XML later. This ensures that only the tasks that you need are activated and the rest can be activated as necessary. For example, the head physician specifies the list of tasks that are required to a technical user. The technical user creates XMLs for these tasks and saves them in the system. the head physician can then ask the technical user to activate individual tasks whenever necessary."
+      operationId: StageMeasurement
+      parameters:
+        - name: MeasurementID
+          in: query
+          description: Enter the unique identifier for the XML. We recommend that you use the condition for which the tasks were created. 
+          required: true
+          example: condition_insomnia
+          schema:
+            type: string
+      requestBody:
+        
+          required: true
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Measurements' 
+      responses:
+        "200":
+          description: Successful response
+
+
+        "404":
+          description: Not found response
+          content:
+            text/plain:
+              schema:
+                title: Weather not found
+                type: string
+                example: Not found
+       
+  /ActivateMeasurement:
+    post:
+      tags:
+      - Activate the tasks 
+      summary: "Activate the task so that patients can perform tasks"
+      description: "After you have added the XML to the staging area, you can activate the task so that patients can perform their tasks and physicians can monitor task data."
+      operationId: ActivateMeasurement
+      parameters:
+        - name: MeasurementID
+          in: query
+          description: Enter the unique identifier for the XML you have added to the staging area.
+          required: true
+          example: condition_insomnia
+          schema:
+            type: string
+           
+      responses:
+        "200":
+          description: Successful response
+
+
+        "404":
+          description: Not found response
+          content:
+            text/plain:
+              schema:
+                title: Weather not found
+                type: string
+                example: Not found
+
+externalDocs:
+  description: API Documentation
+  url: https://openweathermap.org/api
+
+components:
+
+  parameters:
+    q:
+      name: q
+      in: query
+      description: "**City name**. *Example: London*. You can call by city name, or by city name and country code. The API responds with a list of results that match a searching word. For the query value, type the city name and optionally the country code divided by a comma; use ISO 3166 country codes."
+      schema:
+        type: string
+  schemas:
+    "UnitofMeasure":
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/idEN'
+        languagekey:
+          $ref: '#/components/schemas/languagekeyEN'
+        title:
+          $ref: '#/components/schemas/titleEN'
+     
+    "Measurements":
+      type: object
+      properties:
+        id:
+          type: string
+          example: condition_insomnia
+          xml:
+            attribute: true
+        title:
+          type: string
+          description: Title of the condition
+          example: Insomnia
+          properties:
+            language:
+              type: string
+              description: Two letter language code
+              example: EN
+              xml:
+                attribute: true
+        description:
+          type: string
+          description: Description of the condition
+          example: Enables you to check sleep behavior and associated attributes.
+          properties:
+            language:
+              type: string
+              description: Two letter language code
+              example: EN
+              xml:
+                attribute: true
+        quantityMeasurementTypes:
+          type: object
+          properties:
+            quantityMeasurementType:
+              type: object            
+              properties:
+                id:
+                  type: string
+                  example: SLEEPAMOUNT
+                  xml:
+                   attribute: true
+                precision:
+                  type: number
+                  description: Total number of digits
+                  example: 4
+                  xml:
+                   attribute: true  
+                scale:
+                  type: number
+                  description: Number of decimals
+                  example: 1
+                  xml:
+                   attribute: true                     
+                quantity:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: SLEEPAMOUNT_QTYID
+                      xml:
+                        attribute: true
+                    standardUnit:
+                      type: string
+                      description: Unit of measure ID
+                      example: SLEEPAMOUNT_STDUNIT_HR
+                      xml:
+                        attribute: true  
+                    title: 
+                      type: string
+                      description: Title of the numerical task
+                      example: Amount of Sleep
+                      properties:
+                        language:
+                          type: string
+                          description: Two letter language code
+                          example: EN
+                          xml:
+                            attribute: true
+                    units:
+                      type: object
+                      properties:
+                        unit:
+                          type: string
+                          description: ID of the Unit of Measure
+                          example: SLEEPAMOUNT_STDUNIT_HR
+                    globalRanges:
+                      type: object
+                      properties:
+                        uppernormal:
+                         type: number
+                         description: Upper Normal Value
+                         example: 9
+                         properties:
+                           language:
+                             type: string
+                             description: Upper Normal in a language like EN or FR
+                             example: Upper Normal
+                             xml:
+                               attribute: true
+                        lowernormal:
+                          type: number
+                          description: Lower normal value
+                          example: 6
+                          properties:
+                            language:
+                              type: string
+                              description: Lower Normal in a language like EN or FR
+                              example: lower normal 
+                              xml:
+                                attribute: true                              
+                        hyperValue:
+                          type: string
+                          description:  The maximum value after which patient's health is in danger.
+                          example: 16
+                          properties:
+                            language:
+                              type: string
+                              description: Hyper in a language like EN or FR
+                              example: lower normal 
+                              xml:
+                                attribute: true      
+                        hypoValue:
+                          type: string
+                          description: The minimum value below which the patient's health is in danger.
+                          example: 3
+                          properties:
+                            language:
+                              type: string
+                              description: Hypo in a language like EN or FR
+                              example: Hypo
+                              xml:
+                                attribute: true   
+        categoryMeasurementTypes:
+          type: object
+          properties:
+            categoryMeasurementType:
+              type: object
+              properties:
+                id: 
+                  type: string
+                  example: SLEEP_TYPEOFSLEEP
+                  xml:
+                    attribute: true  
+                entriesPerMeasurement: 
+                  type: string
+                  description: Specifies the number of choices a patient can choose. 
+                  example: 1
+                  xml:
+                    attribute: true                  
+                title: 
+                  type: string
+                  description: Title of the fixed value task
+                  example: Type of Sleep
+                categoryMeasurmentItems:
+                  type: object
+                  properties:
+                    categoryMeasurementItem:
+                      type: object
+                      properties: 
+                        id: 
+                          type: string
+                          example: TYPEOFSLEEP_VALUE_RESTLESSSLEEP
+                          xml:
+                            attribute: true  
+                        orderIndex: 
+                          type: number
+                          description: Specifies the order number of the option. 
+                          example: 1
+                          xml:
+                            attribute: true                             
+                            
+                        title:
+                          type: string
+                          description: Fixed Value Option
+                          example: Restless sleep
+                    
+    idEN:
+      title: Id
+      type: string
+      description: Idetifier for UoM
+      example: SLEEPAMOUNT_STDUNIT_HR
+    languagekeyEN:
+      title: Language Key
+      type: string
+      description: Two letter language key
+      enum: [EN, FR, ES, DE, CH, SW]
+      example: EN
+    titleEN:
+      title: Title
+      type: string
+      description: Title of the UoM
+      example: Hours 
+
+
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      
